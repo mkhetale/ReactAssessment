@@ -1,10 +1,22 @@
 import { configureStore } from '@reduxjs/toolkit';
 // import counterReducer from '../features/counter/counterSlice';
 import noteReducer from '../features/notes/noteSlice';
+import { persistStore, persistReducer } from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+const persistConfig = {
+  key: 'authType',
+  storage: storage,
+  whitelist: ['authType'] // which reducer want to store
+};
 
-export const store = configureStore({
+const pReducer = persistReducer(persistConfig, noteReducer);
+
+const store = configureStore({
   reducer: {
     // counter: counterReducer,
-    note: noteReducer,
+    note: pReducer,
   },
 });
+const persistor = persistStore(store);
+
+export { store, persistor };

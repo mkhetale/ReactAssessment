@@ -34,7 +34,9 @@ const useStyles = makeStyles((theme) => ({
 		float: 'right'
 	},
 	margin: {
+		marginTop: "50px",
     margin: theme.spacing(1),
+		width: "500px"
   },
 }));
 
@@ -48,8 +50,16 @@ export function Notes() {
 	const [description, setDescription] = React.useState("");
 	const [id, setId] = React.useState("");
 	const [search, setSearch] = React.useState("");
-	const [filter, setFilter] = React.useState(false);
 	const [list, setList] = React.useState(notesList);
+	const [errors, setErrors] = React.useState({
+		name: false,
+		email: false,
+		description: false,
+	});
+
+	React.useEffect(() => {
+		setList(notesList);
+	}, [notesList])
 
   const handleClickOpen = (data) => {
 		setEmail(data.email);
@@ -67,7 +77,6 @@ export function Notes() {
     setSearch(val);
 		var temp = notesList.filter(x => x.email.includes(val));
 		setList(temp);
-		console.log(temp);
   };
 
 	const updateNote = () => {
@@ -77,28 +86,49 @@ export function Notes() {
 			email: email,
 			description: description
 		}
-		dispatch(updatenote(obj));
-    setOpen(false);
+		const errorObj = {
+			name: false,
+			email: false,
+			description: false,
+		};
+		var test = false;
+		if (!/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email) || !email) {
+			errorObj.email = true;
+			test = true;
+		}
+		if (!name || name.length > 20) {
+			errorObj.name = true;
+			test = true;
+		}
+		if (!description) {
+			errorObj.description = true;
+			test = true;
+		}
+		setErrors(errorObj);
+		if(!test) {
+			dispatch(updatenote(obj));
+			setName("");
+			setEmail("");
+			setDescription("");
+    	setOpen(false);
+		}
   };
 
 	const deleteNote = (data) => {
 		dispatch(deletenote(data));
-	};
-	
-	const clickAlert = () => {
-		// alert("I am working");
-		console.log('I hope');
+		setSearch("");
 	};
 
   return (
     <div>
-			<CreateForm onChildclick={clickAlert}/>
+			<CreateForm />
 			<TextField
         className={classes.margin}
         id="input-with-icon-textfield"
         label="Search"
 				placeholder="Search with email"
 				variant="outlined"
+				value={search}
 				onChange={e => filterSearch(e.target.value )}
         InputProps={{
           startAdornment: (
@@ -147,6 +177,8 @@ export function Notes() {
         <DialogTitle id="form-dialog-title">Edit Note</DialogTitle>
         <DialogContent>
           <TextField
+							error={errors.name}
+							helperText={errors.name? "Enter valid name": ""}
 							autoFocus
 							margin="dense"
 							id="name"
@@ -158,6 +190,8 @@ export function Notes() {
 							fullWidth
 					/>
 					<TextField
+							error={errors.email}
+							helperText={errors.email? "Enter valid email": ""}
 							autoFocus
 							margin="dense"
 							id="email"
@@ -169,6 +203,8 @@ export function Notes() {
 							fullWidth
 					/>
 					<TextField
+							error={errors.description}
+							helperText={errors.description? "Enter valid description": ""}
 							autoFocus
 							margin="dense"
 							id="description"

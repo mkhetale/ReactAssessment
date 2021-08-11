@@ -28,15 +28,6 @@ const useStyles = makeStyles((theme) => ({
 	},
 }));
 
-const validEmailRegex = RegExp(
-  /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
-);
-const validateForm = errors => {
-  let valid = true;
-  Object.values(errors).forEach(val => val.length > 0 && (valid = false));
-  return valid;
-};
-
 export function CreateForm() {
 	const classes = useStyles();
 	const dispatch = useDispatch();
@@ -71,11 +62,15 @@ export function CreateForm() {
 			test = true;
 		}
 		if (!description) {
-			errorObj.name = true;
+			errorObj.description = true;
 			test = true;
 		}
+		setErrors(errorObj);
 		if(!test) {
 			dispatch(addnote(obj));
+			setName("");
+			setEmail("");
+			setDescription("");
 		}
 	};
 
@@ -87,6 +82,8 @@ export function CreateForm() {
 				/>
 				<CardContent>
 					<TextField
+							error={errors.name}
+							helperText={errors.name? "Enter valid name": ""}
 							autoFocus
 							margin="dense"
 							id="name"
@@ -98,6 +95,8 @@ export function CreateForm() {
 							fullWidth
 					/>
 					<TextField
+							error={errors.email}
+							helperText={errors.email? "Enter valid email": ""}
 							autoFocus
 							margin="dense"
 							id="email"
@@ -109,6 +108,8 @@ export function CreateForm() {
 							fullWidth
 					/>
 					<TextField
+							error={errors.description}
+							helperText={errors.description? "Enter valid description": ""}
 							autoFocus
 							margin="dense"
 							id="description"
